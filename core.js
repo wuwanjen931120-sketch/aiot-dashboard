@@ -1,12 +1,2 @@
-document.addEventListener("DOMContentLoaded", function () {
-
-  const isProtectedPage =
-    location.pathname.endsWith("dashboard.html") ||
-    location.pathname.endsWith("logs.html") ||
-    location.pathname.endsWith("settings.html");
-
-  if (isProtectedPage && localStorage.getItem("isLogin") !== "true") {
-    window.location.replace("login.html");
-  }
-
-});
+// 暫時關閉登入保護
+console.log("core.js loaded");
