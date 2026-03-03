@@ -1,176 +1,33 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>登入 - 瑕疵辨識與分流系統</title>
-
-  <link rel="stylesheet" href="style.css" />
-
-  <!-- ✅ PWA 必加 -->
-  <link rel="manifest" href="manifest.webmanifest">
-  <meta name="theme-color" content="#0b1220">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-  <style>
-    .wrap{
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:18px;
-    }
-    .loginCard{
-      width:min(520px, 100%);
-      background: rgba(18,35,59,.75);
-      border:1px solid rgba(255,255,255,.12);
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-      padding: 18px;
-    }
-    .title{
-      font-size:20px;
-      font-weight:900;
-      margin:0 0 8px;
-      letter-spacing:.7px;
-    }
-    .sub{
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.6;
-      margin:0 0 14px;
-    }
-    label{
-      display:block;
-      font-size:13px;
-      color:var(--muted);
-      margin:10px 0 6px;
-    }
-    input{
-      width:100%;
-      padding:12px 12px;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.18);
-      color: var(--text);
-      outline:none;
-    }
-    input:focus{
-      border-color: rgba(59,130,246,.45);
-      box-shadow: 0 0 0 3px rgba(59,130,246,.12);
-    }
-    .row{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:14px;
-    }
-    .hint{
-      margin-top:12px;
-      color:var(--muted);
-      font-size:12px;
-      line-height:1.6;
-      border-top:1px solid rgba(255,255,255,.10);
-      padding-top:12px;
-    }
-    .err{
-      margin-top:10px;
-      display:none;
-      padding:10px 12px;
-      border-radius:14px;
-      background: rgba(239,68,68,.15);
-      border:1px solid rgba(239,68,68,.28);
-      color: rgba(231,238,252,.95);
-      font-size:13px;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <title>登入</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body>
-  <script src="core.js"></script>
+<body style="text-align:center; margin-top:100px; font-family:Arial;">
 
-  <div class="wrap">
-    <div class="loginCard">
-      <div style="display:flex; align-items:center; gap:12px;">
-        <div class="logo"></div>
-        <div>
-          <h1 class="title">登入</h1>
-          <div class="sub">請輸入帳號密碼進入系統（展示版：本機驗證）</div>
-        </div>
-      </div>
+  <h2>AIoT Dashboard 登入</h2>
 
-      <div class="err" id="errBox"></div>
+  <input id="username" placeholder="帳號"><br><br>
+  <input id="password" type="password" placeholder="密碼"><br><br>
+  <button onclick="login()">登入</button>
 
-      <label>帳號</label>
-      <input id="user" placeholder="例如：NFU1000" autocomplete="username" />
+  <p id="msg" style="color:red;"></p>
 
-      <label>密碼</label>
-      <input id="pass" type="password" placeholder="請輸入密碼" autocomplete="current-password" />
+<script>
+function login() {
+  const user = document.getElementById("username").value.trim();
+  const pass = document.getElementById("password").value.trim();
 
-      <div class="row">
-        <button class="btn btnPrimary" onclick="doLogin()">登入</button>
-        <button class="btn" onclick="location.href='index.html'">回首頁</button>
-      </div>
+  if (user === "admin" && pass === "1234") {
+    localStorage.setItem("isLogin", "true");
+    window.location.href = "dashboard.html";
+  } else {
+    document.getElementById("msg").innerText = "帳號或密碼錯誤";
+  }
+}
+</script>
 
-      <div class="hint">
-        <div>📌 若你之前「打對密碼登不進去」，通常是空白字元或大小寫問題。</div>
-        <div>✅ 這版已加上 trim() 自動去除前後空白。</div>
-      </div>
-    </div>
-  </div>
-
-  <div id="errorBar"></div>
-
-  <script>
-    // ✅ 這裡是「展示版帳密」：你要改只要改這兩行
-    const DEMO_USER = "admin";
-    const DEMO_PASS = "1234";;
-
-    function showErr(msg){
-      const box = document.getElementById("errBox");
-      box.style.display = "block";
-      box.textContent = "⚠️ " + msg;
-    }
-
-    function doLogin(){
-      try{
-        const u = (document.getElementById("user").value || "").trim();
-        const p = (document.getElementById("pass").value || "").trim();
-
-        if(!u || !p){
-          showErr("帳號與密碼不可為空");
-          return;
-        }
-
-        // ✅ 防爆：避免奇怪字元/過長輸入
-        if(u.length > 50 || p.length > 50){
-          showErr("輸入過長，請重新輸入");
-          return;
-        }
-
-        if(u === DEMO_USER && p === DEMO_PASS){
-          localStorage.setItem("isLogin", "true");
-          localStorage.setItem("loginUser", u);
-          location.replace("dashboard.html");
-        }else{
-          showErr("帳號或密碼錯誤");
-        }
-      }catch(e){
-        console.error(e);
-        showError("登入流程錯誤");
-      }
-    }
-
-    // Enter 直接登入
-    document.addEventListener("keydown", (e)=>{
-      if(e.key === "Enter") doLogin();
-    });
-
-    /* ✅ 註冊 Service Worker（PWA） */
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("./sw.js").catch(console.error);
-    }
-  </script>
 </body>
-
 </html>
