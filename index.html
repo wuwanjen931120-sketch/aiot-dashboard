@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>瑕疵辨識與分流系統</title>
+
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- ✅ PWA 必加 -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#0b1220">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <style>
+    .centerWrap{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+    }
+    .panel{
+      width:min(720px, 100%);
+      background: rgba(18,35,59,.75);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+    .hero{
+      display:flex;
+      gap:14px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .heroIcon{
+      width:64px;height:64px;border-radius:18px;
+      background: linear-gradient(135deg, rgba(59,130,246,.9), rgba(34,197,94,.6));
+      box-shadow: var(--shadow);
+      flex: 0 0 auto;
+    }
+    .heroTitle{
+      margin:0;
+      font-size:22px;
+      font-weight:900;
+      letter-spacing:.8px;
+    }
+    .heroSub{
+      margin:6px 0 0;
+      color:var(--muted);
+      line-height:1.6;
+      font-size:13px;
+    }
+    .btnRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:14px;
+    }
+    .note{
+      margin-top:12px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.6;
+      border-top:1px solid rgba(255,255,255,.10);
+      padding-top:12px;
+    }
+  </style>
+</head>
+<body>
+  <script src="core.js"></script>
+
+  <div class="centerWrap">
+    <div class="panel">
+      <div class="hero">
+        <div class="heroIcon"></div>
+        <div style="min-width:220px">
+          <h1 class="heroTitle">瑕疵辨識與分流系統</h1>
+          <div class="heroSub">多頁系統版本（PWA）— 手機可加入主畫面，像 App 一樣使用</div>
+        </div>
+      </div>
+
+      <div class="btnRow">
+        <button class="btn btnPrimary" onclick="go()">進入系統</button>
+        <button class="btn" onclick="location.href='login.html'">前往登入</button>
+        <button class="btn" onclick="location.href='dashboard.html'">前往 Dashboard</button>
+      </div>
+
+      <div class="note">
+        <div>✅ 建議用 HTTPS（GitHub Pages / Netlify / Vercel）才能安裝成 App。</div>
+        <div>✅ 若未登入，會自動導向 login.html。</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="errorBar"></div>
+
+  <script>
+    function go(){
+      try{
+        const ok = localStorage.getItem("isLogin") === "true";
+        location.href = ok ? "dashboard.html" : "login.html";
+      }catch(e){
+        location.href = "login.html";
+      }
+    }
+
+    /* ✅ 註冊 Service Worker（PWA） */
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js").catch(console.error);
+    }
+  </script>
+</body>
+</html>
