@@ -1,4 +1,4 @@
-const CACHE_NAME = "aiot-pwa-v1";
+const CACHE_NAME = "aiot-pwa-v2";
 const ASSETS = [
   "./",
   "./index.html",
@@ -45,4 +45,5 @@ self.addEventListener("fetch", (event) => {
       }).catch(() => cached);
     })
   );
+
 });
