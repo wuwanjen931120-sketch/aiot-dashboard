@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>瑕疵辨識與分流系統 - Dashboard</title>
+
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    .page-bg {
+      background: linear-gradient(180deg, rgba(60,140,210,.35), rgba(11,18,32,0) 55%);
+      border-radius: 18px;
+      padding: 14px;
+    }
+    .heroGrid{
+      display:grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap:14px;
+      align-items:stretch;
+      margin-top:14px;
+    }
+    .liveCard{
+      background: rgba(18,35,59,.75);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 12px;
+    }
+    .liveTitle{
+      font-weight:800;
+      font-size:18px;
+      margin: 2px 0 10px;
+      letter-spacing:.5px;
+    }
+    .liveFrame{
+      border-radius: 16px;
+      border: 3px solid rgba(121, 89, 255, .85);
+      background: rgba(0,0,0,.25);
+      overflow:hidden;
+      position:relative;
+      aspect-ratio: 16 / 9;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .liveFrame img, .liveFrame video, .liveFrame canvas{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+      filter:none !important;
+    }
+    .liveHint{
+      position:absolute;
+      inset:auto 10px 10px 10px;
+      font-size:12px;
+      color:rgba(231,238,252,.78);
+      background: rgba(0,0,0,.35);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: 12px;
+      padding:8px 10px;
+      backdrop-filter: blur(6px);
+    }
+
+    .estopWrap{
+      margin-top:12px;
+      display:flex;
+      justify-content:center;
+    }
+    .estopBig{
+      width:min(560px, 100%);
+      padding: 18px 18px;
+      border-radius: 18px;
+      border: none;
+      cursor:pointer;
+      font-size: 30px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color:#fff;
+      background: #ff2d2d;
+      box-shadow: 0 18px 40px rgba(255,45,45,.25);
+    }
+    .estopBig:active{ transform: translateY(1px); }
+
+    .statusCard{
+      background: rgba(18,35,59,.75);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 12px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .statusTitle{
+      font-weight:900;
+      font-size:20px;
+      margin: 2px 0 0;
+      letter-spacing:.6px;
+    }
+
+    .statusGrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+      align-items:stretch;
+    }
+
+    .gaugeBox{
+      background: rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:16px;
+      padding:12px;
+      min-height: 210px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+    }
+    .gaugeLabel{
+      color: var(--muted);
+      font-size:13px;
+      font-weight:600;
+    }
+    .gauge{
+      --p: 65;
+      width: 100%;
+      max-width: 260px;
+      margin: 8px auto 2px;
+      aspect-ratio: 2 / 1;
+      border-radius: 999px 999px 0 0;
+      position:relative;
+      overflow:hidden;
+      background:
+        conic-gradient(from 180deg,
+          rgba(59,130,246,.95) calc(var(--p)*1%),
+          rgba(255,255,255,.10) 0);
+    }
+    .gauge::after{
+      content:"";
+      position:absolute;
+      inset: 12% 12% 0 12%;
+      background: rgba(18,35,59,.95);
+      border-radius: 999px 999px 0 0;
+      border:1px solid rgba(255,255,255,.08);
+    }
+    .gaugeValue{
+      position:absolute;
+      left:50%;
+      bottom: 8px;
+      transform: translateX(-50%);
+      z-index:2;
+      font-size:34px;
+      font-weight:900;
+    }
+    .gaugeSub{
+      text-align:center;
+      margin-top:-2px;
+      color: var(--muted);
+      font-size:12px;
+      font-weight:600;
+    }
+    .gaugeBar{
+      height:12px;
+      border-radius:999px;
+      background: rgba(255,255,255,.10);
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.10);
+    }
+    .gaugeBar > div{
+      height:100%;
+      width: 65%;
+      background: rgba(34,197,94,.85);
+      border-radius:999px;
+    }
+
+    .areaCard{
+      background: rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:16px;
+      padding:12px;
+      position:relative;
+      min-height: 88px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      gap:6px;
+    }
+    .areaTop{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .areaName{
+      font-size:13px;
+      color: rgba(231,238,252,.92);
+      font-weight:800;
+      line-height:1.3;
+    }
+    .areaSub{
+      font-size:12px;
+      color: var(--muted);
+      margin-top:2px;
+    }
+    .areaValue{
+      font-size:30px;
+      font-weight:900;
+      color: rgba(34,197,94,.9);
+      text-align:right;
+    }
+    .trash{
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      color: rgba(231,238,252,.86);
+      width:34px; height:34px;
+      border-radius:12px;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex: 0 0 auto;
+    }
+    .trash:hover{ background: rgba(255,255,255,.10); }
+
+    .defectCard{
+      grid-column: 1 / -1;
+      background: rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:16px;
+      padding:12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      min-height: 88px;
+    }
+    .defectLeft{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      color: var(--muted);
+      font-weight:700;
+    }
+    .warnIcon{
+      width:22px; height:22px;
+      border-radius:6px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      color:#ff6b6b;
+      background: rgba(239,68,68,.12);
+      border:1px solid rgba(239,68,68,.25);
+      font-weight:900;
+    }
+    .defectValue{
+      font-size:34px;
+      font-weight:900;
+      color: rgba(239,68,68,.95);
+    }
+
+    /* ✅ 新增：預覽模組 */
+    .previewBox{
+      margin-top:14px;
+      background: rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:16px;
+      padding:12px;
+    }
+    .previewRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-bottom:10px;
+    }
+    .previewStage{
+      border-radius: 16px;
+      border: 1px dashed rgba(255,255,255,.18);
+      background: rgba(0,0,0,.18);
+      padding:10px;
+    }
+    #previewCanvas{
+      width:100%;
+      height:auto;
+      display:block;
+      border-radius:12px;
+      filter:none !important;
+    }
+
+    @media (max-width: 980px){
+      .heroGrid{ grid-template-columns: 1fr; }
+      .estopBig{ font-size:26px; }
+      .statusGrid{ grid-template-columns: 1fr; }
+    }
+  </style>
+
+  <!-- ✅ PWA 必加 -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#0b1220">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <!-- ✅ defer 避免阻塞 -->
+  <script defer src="core.js"></script>
+  <script defer src="script.js"></script>
+</head>
+
+<body>
+  <div id="overlay" class="drawerOverlay" onclick="toggleDrawer(false)"></div>
+  <aside id="drawer" class="drawer">
+    <div class="sidebar" style="display:block; position:static; height:100vh;">
+      <div class="brand">
+        <div class="logo"></div>
+        <div>
+          <h1>瑕疵辨識與分流系統</h1>
+          <p>多頁系統版本</p>
+        </div>
+      </div>
+
+      <div class="nav">
+        <a href="dashboard.html">🏠 Dashboard <span class="pill">Home</span></a>
+        <a href="logs.html">🧾 事件紀錄 <span class="pill">Logs</span></a>
+        <a href="settings.html">⚙️ 系統設定 <span class="pill">Settings</span></a>
+        <button onclick="logout()">🚪 登出 <span class="pill">Logout</span></button>
+      </div>
+
+      <div class="side-footer">
+        <div>狀態：<span style="color:var(--good); font-weight:800;">● 正常</span></div>
+        <div>提示：此頁為靜態展示，可後續接串流/API。</div>
+        <div style="margin-top:10px;">
+          <button class="btn" onclick="swHardReset()">修復灰底/警告（清快取）</button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo"></div>
+        <div>
+          <h1>瑕疵辨識與分流系統</h1>
+          <p>多頁系統版本</p>
+        </div>
+      </div>
+
+      <div class="nav">
+        <a href="dashboard.html">🏠 Dashboard <span class="pill">Home</span></a>
+        <a href="logs.html">🧾 事件紀錄 <span class="pill">Logs</span></a>
+        <a href="settings.html">⚙️ 系統設定 <span class="pill">Settings</span></a>
+        <button onclick="logout()">🚪 登出 <span class="pill">Logout</span></button>
+      </div>
+
+      <div class="side-footer">
+        <div>系統概念：即時檢測 + 分流統計 + 遠端急停</div>
+        <div style="margin-top:10px;">
+          <button class="btn" onclick="swHardReset()">修復灰底/警告（清快取）</button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div class="leftTop">
+          <button class="hamburger" onclick="toggleDrawer(true)">☰</button>
+          <div class="pageTitle">
+            <b>瑕疵辨識與分流系統</b>
+            <span>依企劃書 UI：即時檢測畫面 + 系統狀態與數據</span>
+          </div>
+        </div>
+        <div class="rightTop">
+          <div class="status" title="展示用">
+            <span class="dot" id="mqttDot"></span>
+            <span id="mqttText">MQTT 已連線</span>
+          </div>
+          <button class="btn btnPrimary" onclick="demoRefresh()">⟳ 模擬更新</button>
+          <button class="btn btnDanger" onclick="demoEstop()">🛑 急停</button>
+        </div>
+      </div>
+
+      <div class="page-bg">
+        <div class="heroGrid">
+
+          <section class="liveCard">
+            <div class="liveTitle">即時檢測畫面</div>
+
+            <div class="liveFrame">
+              <img id="liveImg"
+                   src="data:image/svg+xml;charset=utf-8,<?xml version='1.0' encoding='UTF-8'?><svg xmlns='http://www.w3.org/2000/svg' width='1280' height='720'><rect width='100%25' height='100%25' fill='%231b2a45'/><text x='50' y='120' fill='%238aa6d6' font-size='48' font-family='Arial'>Live Preview (Replace with Stream)</text></svg>"
+                   alt="Live Preview" />
+              <div class="liveHint">
+                可替換成：&lt;img&gt; 串流 / &lt;video&gt; / canvas 畫框（YOLO bbox）
+              </div>
+            </div>
+
+            <div class="estopWrap">
+              <button class="estopBig" onclick="demoEstop()">緊急停止</button>
+            </div>
+
+            <!-- ✅ 新增：預覽修復（上傳/預覽彩色且比例吻合） -->
+            <div class="previewBox">
+              <div style="font-weight:800; margin-bottom:6px;">影像預覽（修復：不吻合/無色彩）</div>
+              <div class="previewRow">
+                <input class="btn" style="padding:10px;" id="previewFile" type="file" accept="image/*" />
+                <button class="btn" onclick="loadDemoPreview()">載入示範圖</button>
+              </div>
+              <div class="previewStage">
+                <canvas id="previewCanvas"></canvas>
+              </div>
+            </div>
+
+          </section>
+
+          <section class="statusCard">
+            <div class="statusTitle">系統狀態與數據</div>
+
+            <div class="statusGrid">
+
+              <div class="gaugeBox">
+                <div class="gaugeLabel">貨物區剩餘數量</div>
+
+                <div class="gauge" id="gauge" style="--p:65;">
+                  <div class="gaugeValue" id="gaugeValue">450</div>
+                </div>
+                <div class="gaugeSub">貨物區剩餘數量</div>
+
+                <div class="gaugeBar" aria-label="progress">
+                  <div id="gaugeBarFill" style="width:65%"></div>
+                </div>
+              </div>
+
+              <div style="display:flex; flex-direction:column; gap:12px;">
+                <div class="areaCard">
+                  <div class="areaTop">
+                    <div>
+                      <div class="areaName">貨物分類收集區</div>
+                      <div class="areaSub">收集區 A (Area A)</div>
+                    </div>
+                    <button class="trash" title="清除（展示）" onclick="clearArea('A')">🗑</button>
+                  </div>
+                  <div class="areaValue" id="areaA">125</div>
+                </div>
+
+                <div class="areaCard">
+                  <div class="areaTop">
+                    <div>
+                      <div class="areaName">貨物分類收集區</div>
+                      <div class="areaSub">收集區 B (Area B)</div>
+                    </div>
+                    <button class="trash" title="清除（展示）" onclick="clearArea('B')">🗑</button>
+                  </div>
+                  <div class="areaValue" id="areaB">180</div>
+                </div>
+
+                <div class="areaCard">
+                  <div class="areaTop">
+                    <div>
+                      <div class="areaName">貨物分類收集區</div>
+                      <div class="areaSub">收集區 C (Area C)</div>
+                    </div>
+                    <button class="trash" title="清除（展示）" onclick="clearArea('C')">🗑</button>
+                  </div>
+                  <div class="areaValue" id="areaC">133</div>
+                </div>
+              </div>
+
+              <div class="defectCard">
+                <div class="defectLeft">
+                  <span class="warnIcon">!</span>
+                  <span>瑕疵品數</span>
+                </div>
+                <div class="defectValue" id="defectCount">12</div>
+              </div>
+
+            </div>
+          </section>
+
+        </div>
+      </div>
+
+      <div id="errorBar"></div>
+
+      <div style="margin-top:14px; color:rgba(155,176,207,.9); font-size:12px;">
+        © 2026 AIoT Dashboard (Static Demo)
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // ✅ PWA：避免阻塞
+    window.addEventListener("load", () => {
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("./sw.js").catch(console.error);
+      }
+    });
+
+    function clearArea(which){
+      try{
+        const id = which === "A" ? "areaA" : which === "B" ? "areaB" : "areaC";
+        const el = document.getElementById(id);
+        if(!el) return;
+        el.textContent = "0";
+        pushLog("WARN", "AREA_" + which, "已清除收集區（展示）");
+      }catch(e){
+        console.error(e);
+        showError("清除失敗");
+      }
+    }
+
+    const _oldDemoRefresh = window.demoRefresh;
+    window.demoRefresh = function(){
+      try{
+        if(typeof _oldDemoRefresh === "function"){
+          try{ _oldDemoRefresh(); }catch(e){}
+        }
+
+        const a = safeNumber(document.getElementById("areaA")?.textContent, 0) + (Math.random()<0.5?0:1);
+        const b = safeNumber(document.getElementById("areaB")?.textContent, 0) + (Math.random()<0.5?0:1);
+        const c = safeNumber(document.getElementById("areaC")?.textContent, 0) + (Math.random()<0.5?0:1);
+
+        document.getElementById("areaA").textContent = String(a);
+        document.getElementById("areaB").textContent = String(b);
+        document.getElementById("areaC").textContent = String(c);
+
+        const defect = safeNumber(document.getElementById("defectCount")?.textContent, 0) + (Math.random()<0.75?0:1);
+        document.getElementById("defectCount").textContent = String(defect);
+
+        const v = Math.max(0, Math.min(700, safeNumber(document.getElementById("gaugeValue")?.textContent, 450) + (Math.random()<0.5?-5:5)));
+        document.getElementById("gaugeValue").textContent = String(v);
+
+        const pct = Math.round((v/700)*100);
+        document.getElementById("gauge").style.setProperty("--p", String(pct));
+        document.getElementById("gaugeBarFill").style.width = pct + "%";
+
+        pushLog("OK", "DATA", "系統數據已更新（展示）");
+      }catch(e){
+        console.error(e);
+        showError("更新資料失敗");
+      }
+    };
+
+    // ✅ 預覽修復（Canvas 比例正確、彩色）
+    function drawToCanvas(img){
+      const canvas = document.getElementById("previewCanvas");
+      if(!canvas) return;
+
+      const wrap = canvas.parentElement;
+      const cssW = Math.max(320, Math.min(1000, wrap?.clientWidth || 640));
+      const ratio = img.naturalWidth / img.naturalHeight;
+      const cssH = Math.round(cssW / ratio);
+
+      const dpr = window.devicePixelRatio || 1;
+      canvas.style.width = cssW + "px";
+      canvas.style.height = cssH + "px";
+      canvas.width = Math.round(cssW * dpr);
+      canvas.height = Math.round(cssH * dpr);
+
+      const ctx = canvas.getContext("2d");
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, cssW, cssH);
+      ctx.filter = "none";                 // ✅ 禁用灰階
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(img, 0, 0, cssW, cssH);
+    }
+
+    function loadDemoPreview(){
+      const img = new Image();
+      img.onload = ()=> {
+        drawToCanvas(img);
+        pushLog("OK", "PREVIEW", "已載入示範預覽圖（彩色/比例吻合）");
+      };
+      img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720">
+          <defs><linearGradient id="g" x1="0" x2="1">
+            <stop offset="0" stop-color="#3b82f6"/><stop offset="1" stop-color="#22c55e"/>
+          </linearGradient></defs>
+          <rect width="100%" height="100%" fill="#0b1220"/>
+          <rect x="60" y="60" width="1160" height="600" rx="28" fill="url(#g)" opacity="0.22"/>
+          <text x="90" y="160" fill="#e7eefc" font-size="56" font-family="Arial" font-weight="800">Preview OK</text>
+          <text x="90" y="230" fill="#9bb0cf" font-size="28" font-family="Arial">Color + Aspect ratio fixed</text>
+          <circle cx="1060" cy="410" r="130" fill="#3b82f6" opacity="0.7"/>
+          <rect x="170" y="330" width="520" height="260" rx="18" fill="#22c55e" opacity="0.65"/>
+        </svg>
+      `);
+    }
+
+    window.addEventListener("resize", () => {
+      // 重新繪製（避免旋轉/縮放後不吻合）
+      // 若沒有圖就不做
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // ✅ 先 seed 一筆 log（不會炸）
+      try{ pushLog("OK","SYSTEM","Dashboard 已載入（展示）"); }catch(e){}
+
+      // 預設載入示範圖
+      loadDemoPreview();
+
+      const file = document.getElementById("previewFile");
+      file?.addEventListener("change", () => {
+        try{
+          const f = file.files?.[0];
+          if(!f) return;
+          if(!/^image\//.test(f.type)) return showError("請選擇圖片檔（jpg/png/webp）");
+          if(f.size > 8 * 1024 * 1024) return showError("圖片過大（>8MB）");
+
+          const url = URL.createObjectURL(f);
+          const img = new Image();
+          img.onload = () => {
+            drawToCanvas(img);
+            URL.revokeObjectURL(url);
+            pushLog("OK", "PREVIEW", "已載入上傳圖片（彩色/比例吻合）");
+          };
+          img.onerror = () => {
+            URL.revokeObjectURL(url);
+            showError("圖片載入失敗");
+          };
+          img.src = url;
+        }catch(e){
+          console.error(e);
+          showError("預覽處理失敗");
+        }
+      });
+    });
+  </script>
+</body>
+</html>
